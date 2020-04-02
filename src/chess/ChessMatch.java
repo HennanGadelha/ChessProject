@@ -13,10 +13,7 @@ public class ChessMatch {
 		
 		board = new Board(8,8);
 		initialSetup();
-		
-		
 	}
-	
 	
 	 //liberando para o programa apenas a camada de xadrez, realizando downcast 
 	public ChessPiece[][] getPieces(){
@@ -32,7 +29,6 @@ public class ChessMatch {
 		}
 		return chessPiece; 
 	}
-	
 	
 	
 	private void initialSetup() {
