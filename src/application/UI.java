@@ -20,7 +20,7 @@ public class UI {
 			
 		}
 	
-		System.out.print(" A B C D E F G H");
+		System.out.print("  a b c d e f g h");
 		
 	}
 	
