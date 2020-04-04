@@ -31,7 +31,7 @@ public class Program {
 				
 				System.out.println();
 				
-				System.out.println("Destino: ");
+				System.out.print("Destino: ");
 				
 				ChessPosition target = UI.readChessPosition(sc);
 				
