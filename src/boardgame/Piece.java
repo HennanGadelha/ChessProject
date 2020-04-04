@@ -1,6 +1,6 @@
 package boardgame;
 
-public class Piece {
+public abstract class Piece {
 
 	// posição não é referente ao xadrez, mas sim a matriz. Por isso ocultaçao da visiblidade
 	protected Position position;
@@ -20,7 +20,34 @@ public class Piece {
 	}
 
 
+	public abstract boolean[][] possibleMoves();
+	
+	//implementando metodo hook para acesso das sublasses
+	public boolean possibleMove(Position position) {
+		
+		return possibleMoves()[position.getRow()][position.getColumn()];
+		
+	}
+	
+	public boolean isThereAnyPossibleMove() {
 
+		boolean possiblePositions[][] = possibleMoves();
+
+		for (int i = 0; i < possiblePositions.length; i++) {
+
+			for (int j = 0; j < possiblePositions.length; j++) {
+
+				if (possiblePositions[i][j]) {
+					return true;
+				}
+
+			}
+
+		}
+
+		return false;
+
+	}
 	
 
 	
