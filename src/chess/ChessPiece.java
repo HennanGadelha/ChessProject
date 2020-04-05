@@ -17,17 +17,12 @@ public abstract class ChessPiece extends Piece {
 		return color;
 	}
 
-	
-
 	protected boolean isThereOpponentPiece(Position position) {
-		
-		ChessPiece opponentPiece = (ChessPiece)getBoard().piece(position);
-		
+
+		ChessPiece opponentPiece = (ChessPiece) getBoard().piece(position);
+
 		return opponentPiece != null && opponentPiece.getColor() != color;
-		
+
 	}
-	
-	
-	
-	
+
 }
