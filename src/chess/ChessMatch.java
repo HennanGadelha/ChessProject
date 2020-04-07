@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import boardgame.Board;
 import boardgame.Piece;
@@ -11,27 +12,27 @@ import chess.pieces.Rook;
 
 public class ChessMatch {
 
-	
 	private int turn;
 	private Color currentPlayer;
 	private Board board;
-	
+	private boolean check;
+
 	private List<Piece> piecesOnTheBoard = new ArrayList<>();
 	private List<Piece> capturedPieces = new ArrayList<>();
-	
-	
+
 	public int getTurn() {
-		
+
 		return turn;
 	}
-	
-	
+
 	public Color getCurrentPlayer() {
 		return currentPlayer;
 	}
-
-
-
+	
+	public boolean getCheck() {
+		
+		return check;
+	}
 
 	public ChessMatch() {
 
@@ -63,11 +64,11 @@ public class ChessMatch {
 			throw new ChessException("Nenhuma peça na posiçao de origem");
 
 		}
-		
-		if(currentPlayer != ((ChessPiece)board.piece(position)).getColor()) {
-			
+
+		if (currentPlayer != ((ChessPiece) board.piece(position)).getColor()) {
+
 			throw new ChessException("A peca escolhida nao e sua");
-			
+
 		}
 
 		if (!board.piece(position).isThereAnyPossibleMove()) {
@@ -93,29 +94,44 @@ public class ChessMatch {
 		Piece capturedPiece = board.removePiece(target);
 
 		board.placePiece(movingPiece, target);
-		
-		if(capturedPiece != null) {
-			
+
+		if (capturedPiece != null) {
+
 			piecesOnTheBoard.remove(capturedPiece);
 			capturedPieces.add(capturedPiece);
-			
+
 		}
 
 		return capturedPiece;
 
 	}
 
-	
-	public boolean[][] possibleMoves(ChessPosition sourcePosition){
-		
+	// metodo para evitar que o rei entre em cheque
+
+	private void undoMove(Position source, Position target, Piece capturedPiece) {
+
+		Piece piece = board.removePiece(target);
+		board.placePiece(piece, source);
+
+		if (capturedPiece != null) {
+
+			board.placePiece(capturedPiece, target);
+			capturedPieces.remove(capturedPiece);
+			piecesOnTheBoard.add(capturedPiece);
+
+		}
+
+	}
+
+	public boolean[][] possibleMoves(ChessPosition sourcePosition) {
+
 		Position position = sourcePosition.toPosition();
 		validateSourcePosition(position);
-		
+
 		return board.piece(position).possibleMoves();
-		
+
 	}
-	
-	
+
 	public ChessPiece performChessMove(ChessPosition sourcePosition, ChessPosition targetPosition) {
 
 		Position source = sourcePosition.toPosition();
@@ -127,21 +143,37 @@ public class ChessMatch {
 
 		Piece capturedPiece = makeMove(source, target);
 		
+		if(testCheck(currentPlayer)) {
+			
+			undoMove(source, target, capturedPiece);
+			
+			throw new ChessException("Voce nao pode se colocar em cheque");
+			
+		}
+		
+		
+		check = (testCheck(opponent(currentPlayer))) ? true : false;
+		
+		
+
 		nextTurn();
 
 		return (ChessPiece) capturedPiece;
 	}
 
-	
-	
 	public void nextTurn() {
-		
+
 		turn++;
 		currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
-		
+
 	}
-	
-	
+
+	private Color opponent(Color color) {
+
+		return (color == Color.WHITE) ? Color.BLACK : Color.WHITE;
+
+	}
+
 	private void placeNewPiece(char col, int row, ChessPiece piece) {
 
 		board.placePiece(piece, new ChessPosition(col, row).toPosition());
@@ -149,6 +181,46 @@ public class ChessMatch {
 
 	}
 
+	private ChessPiece king(Color color) {
+
+		List<Piece> pieces = piecesOnTheBoard.stream().filter(p -> ((ChessPiece)p).getColor() == color)
+				.collect(Collectors.toList());
+
+		for (Piece p : pieces) {
+
+			if (p instanceof King) {
+				return (ChessPiece) p;
+			}
+
+		}
+
+		throw new IllegalStateException("Nao existe o rei da cor " + color);
+
+	}
+	
+	
+	private boolean testCheck(Color color) {
+
+		Position kingPosition = king(color).getChessPosition().toPosition();
+		List<Piece> opponentPieces = piecesOnTheBoard.stream().filter(p -> ((ChessPiece) p).getColor() == opponent(color))
+				.collect(Collectors.toList());
+		
+		
+		for(Piece p :  opponentPieces ) {
+			
+			boolean possibleMovesOpponent[][] = p.possibleMoves();
+			
+			if(possibleMovesOpponent[kingPosition.getRow()][kingPosition.getColumn()]) {
+				return true;
+			}
+			
+		}
+		
+		return false;
+
+	}
+
+	
 	private void initialSetup() {
 
 		placeNewPiece('c', 1, new Rook(board, Color.WHITE));
