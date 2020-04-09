@@ -36,12 +36,12 @@ public class ChessMatch {
 	
 	public boolean getCheck() {
 		
-		return checkMate;
+		return check;
 	}
 	
 	public boolean getcheckMate() {
 		
-		return check;
+		return checkMate;
 	}
 
 	public ChessMatch() {
