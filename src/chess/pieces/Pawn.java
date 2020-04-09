@@ -72,7 +72,7 @@ public class Pawn extends ChessPiece {
 
 			p.setValues(position.getRow() + 2, position.getColumn());
 
-			Position moveFirstPosition = new Position(position.getRow() - 1, position.getColumn());
+			Position moveFirstPosition = new Position(position.getRow() + 1, position.getColumn());
 
 			if (getBoard().positionExists(p) && !getBoard().thereIsAPiece(p)
 					&& getBoard().positionExists(moveFirstPosition) && !getBoard().thereIsAPiece(moveFirstPosition)
